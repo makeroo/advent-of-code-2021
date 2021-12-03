@@ -19,16 +19,33 @@ main = do
       epsilon_rate = total - gamma_rate
       
 
-  print digit_strings_count
+  -- print digit_strings_count
   -- print digit_strings
   -- print values
   -- print (map (add_ones [0,0,0,0,0,0,0,0,0,0,0,0]) values)
-  print ones_count
-  print gamma_rate
-  print total
-  print epsilon_rate
+  -- print ones_count
+  -- print gamma_rate
+  -- print total
+  -- print epsilon_rate
   print (gamma_rate * epsilon_rate)
 
+  let oxy_rate = filter_rate (2 ^ 11) 1 values
+      co2_rate = filter_rate (2 ^ 11) 0 values
+
+  print oxy_rate
+  print co2_rate
+  print (oxy_rate * co2_rate)
+
+
+filter_rate :: Int -> Int -> [Int] -> Int
+filter_rate _ _ [x] = x
+filter_rate bit chk (x:xs) | bit > 0 = v
+  where
+    set_1 = [x | x <- x:xs, x .&. bit > 0]
+    set_0 = [x | x <- x:xs, x .&. bit == 0]
+    sub_set = if (chk == 1 && (length set_1 >= length set_0)) ||
+                 (chk == 0 && (length set_1 < length set_0)) then set_1 else set_0
+    v = filter_rate (quot bit 2) chk sub_set
 
 
 zeros = 0 : zeros
@@ -67,9 +84,9 @@ bit_string_to_number x = y
     y = sum t2
 
 
+-- https://stackoverflow.com/a/5922212
 readBin :: Integral a => String -> Maybe a
 readBin = fmap fst . listToMaybe . readInt 2 (`elem` "01") digitToInt
--- readBin "1001" == Just 9
 
 onlyInts :: Integral a => [Maybe a] -> [a]
 onlyInts (Just a:rest) = a : onlyInts rest
