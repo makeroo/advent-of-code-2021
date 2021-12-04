@@ -1,0 +1,10 @@
+haskell learning roadmap
+
+. figure how to debug
+
+. doc strings?
+
+. create modules instead of executables and import them
+
+. learn an IDE, be it Emacs, VScode or other
+  note: can't enable haskell on Atom...

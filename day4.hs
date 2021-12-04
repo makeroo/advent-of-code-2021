@@ -7,6 +7,12 @@ data NumberState = Nop | Extracted deriving (Eq, Show)
 
 -- https://stackoverflow.com/a/7867786
 
+-- improvements:
+-- 1. define table as data type with it own operations (eg. apply number, is winning...)
+--    eg. instead of couples num/state, a 5*5 matrix + 5+5 rows/cols matched
+--        when a number is matched, increase its row and col count so
+--        determining if a table is complete is o(1)
+
 main = do
   contents <- readFile "day4.input"
 
@@ -15,10 +21,10 @@ main = do
       extracted = row_numbers extraction
       table_lines = drop 1 lines
       tables = parse_tables table_lines
-      winning_table = play_bingo extracted tables
 
-      fst = extracted !! 0
-      ttry = apply_number fst (tables !! 0)
+  {-
+      -- fst = extracted !! 0
+      -- ttry = apply_number fst (tables !! 0)
   
   -- print lines
   -- print extraction
@@ -28,7 +34,7 @@ main = do
   print (tables !! 0)
   print (traspose (tables !! 0))
   --print (length (tables !! 0))
-  
+
   print (fst, ttry)
   print (is_winning_table [
             (3,Nop),(82,Nop),(18,Nop),(50,Nop),(90,Nop),
@@ -36,7 +42,26 @@ main = do
             (16,Nop),(37,Nop),(52,Nop),(67,Nop),(28,Nop),
             (60,Nop),(79,Nop),(7,Nop),(65,Nop),(58,Nop),
             (76,Nop),(83,Nop),(38,Nop),(51,Nop),(1,Nop)])
-  print winning_table
+  -}
+  print (play_bingo extracted tables)
+
+  print (play_bingo_last_table extracted 0 tables [])
+
+play_bingo_last_table :: [Int] -> Int -> [[(Int, NumberState)]] -> [[(Int, NumberState)]] -> Int
+
+play_bingo_last_table _ last_extr [] [t] = trace ("final "++(show last_extr) ++ ":"++ show t) calc_result last_extr [t]
+play_bingo_last_table (extraction:rest) _ tables _ = r
+  where
+    new_tables = trace ("extracted " ++ show extraction) [ apply_number extraction t | t <- tables ]
+    (winning_tables, non_winning_tables) = split_winners [] [] new_tables
+    r = trace ("remaining tables " ++ show(length non_winning_tables)) play_bingo_last_table rest extraction non_winning_tables winning_tables
+-- play_bingo_last_table a b c = trace ("boh " ++ (show a) ++ ", " ++ (show b) ++ ", " ++ (show c)) 0-1
+
+split_winners :: [[(Int, NumberState)]] -> [[(Int, NumberState)]] -> [[(Int, NumberState)]] -> ([[(Int, NumberState)]], [[(Int, NumberState)]])
+split_winners a b []                            = (a, b)
+split_winners a b (t:rest) | is_winning_table t = split_winners (a++[t]) b     rest 
+split_winners a b (t:rest)                      = split_winners a     (b++[t]) rest
+
 
 play_bingo :: [Int] -> [[(Int, NumberState)]] -> Int
 play_bingo (extraction:rest) tables = wt
@@ -101,21 +126,3 @@ row_numbers str = toInt (splitOn "," str)
                  
 toInt :: [String] -> [Int]
 toInt = map read
-
-{-
-
-[
-(3,Nop),(82,Nop),(18,Nop),(50,Nop),(90,Nop),
-(16,Nop),(37,Nop),(52,Nop),(67,Nop),(28,Nop),
-(30,Nop),(54,Nop),(80,Nop),(11,Nop),(10,Nop),
-(60,Nop),(79,Nop),(7,Nop),(65,Nop),(58,Nop),
-(76,Nop),(83,Nop),(38,Nop),(51,Nop),(1,Nop)]
-
-[(3,Nop),(16,Nop),(30,Nop),(60,Nop),(76,Nop),
-(82,Nop),(37,Nop),(54,Nop),(79,Nop),(83,Nop),
-(18,Nop),(52,Nop),(80,Nop),(7,Nop),(38,Nop),
-(90,Nop),(28,Nop),(10,Nop),(58,Nop),(1,Nop),
-
-(16,Nop),(30,Nop),(60,Nop),(76,Nop)]
-
--}
