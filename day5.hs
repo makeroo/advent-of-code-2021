@@ -15,27 +15,38 @@ main = do
       (w, h) = max_width_and_height 0 0 lines
       points = draw_lines (w+1) (h+1) [ l | l <- lines, is_ortho l ]
       -- see: https://stackoverflow.com/a/7108655
---λ> :m + Data.Map
---λ> let input = "happy"
       freqs = Map.toList $ Map.fromListWith (+) [(c, 1) | c <- points]
---[('a',1),('h',1),('p',2),('y',1)]
 
-  print ("lines: " ++ show (length lines))
-  print ("first line: " ++ show (lines !! 0))
-  print ("width: " ++ (show w) ++ ", height: " ++ show h)
-  print ("points: " ++ show (length points))
+  -- print ("lines: " ++ show (length lines))
+  -- print ("first line: " ++ show (lines !! 0))
+  -- print ("width: " ++ (show w) ++ ", height: " ++ show h)
+  -- print ("points: " ++ show (length points))
   print (length [ x | (x, v) <- freqs, v > 1 ])
-  
+
+  let points2 = draw_lines (w+1) (h+1) lines
+      freqs2 = Map.toList $ Map.fromListWith (+) [(c, 1) | c <- points2]
+
+--  print points2
+  print (length [ x | (x, v) <- freqs2, v > 1 ])
 
 
 draw_lines :: Int -> Int -> [Line] -> [Int]
 draw_lines w h [] = []
-draw_lines w h (l:rest) = (draw_line w h l) ++ draw_lines w h rest -- trace ("rem: "++ show (length rest))
+draw_lines w h (l:rest) | is_ortho l  = (draw_line_h w h l) ++ draw_lines w h rest
+draw_lines w h (l:rest)               = (draw_line_d w h l) ++ draw_lines w h rest
 
-draw_line :: Int -> Int -> Line -> [Int]
-draw_line w h (Line (Point x1 y1) (Point x2 y2)) = points
+draw_line_d :: Int -> Int -> Line -> [Int]
+draw_line_d w h (Line (Point x1 y1) (Point x2 y2)) = points
   where
-    points = [ y * w + x | x <- range x1 x2, y <- range y1 y2 ] -- trace ("line " ++ show x1 ++ "," ++ show y1 ++ " -> " ++ show x2 ++ "," ++ show y2)
+    points = [ y * w + x | (x, y) <- zip (range x1 x2) (range y1 y2) ]
+      where
+        range x y | x <= y = [x .. y]
+        range x y | x > y  = reverse [y .. x]
+
+draw_line_h :: Int -> Int -> Line -> [Int]
+draw_line_h w h (Line (Point x1 y1) (Point x2 y2)) = points
+  where
+    points = [ y * w + x | x <- range x1 x2, y <- range y1 y2 ]
       where
         range x y | x <= y = [x .. y]
         range x y | x > y  = [y .. x]
