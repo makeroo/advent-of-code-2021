@@ -18,6 +18,30 @@ main = do
       height_map = HeightMap width height in_lines
 
   print (sum (filter (\x -> x > 0) [ 1 + is_minimum x  y height_map | x <- [0..width - 1], y <- [0..height - 1] ]))
+  print (flood [(5,0)] [] height_map)
+
+  let all_floods = floods [(x,y) | x <- [0..width-1], y <- [0..height-1]] [] [] height_map
+      sorted = reverse (sort (map (\x -> length x) all_floods))
+  print (product (take 3 sorted))
+
+floods :: [(Int, Int)] -> [[(Int,Int)]] -> [(Int,Int)] -> HeightMap -> [[(Int,Int)]]
+floods [] r _ _ = r
+floods ((x,y):rest) ff done (HeightMap w h heights) | (x,y) `elem` done || v == 9 = floods rest ff done (HeightMap w h heights)
+  where
+    height_at (x, y) = ord ((heights !! y) !! x) - (ord '0')
+    v = height_at (x,y)
+floods ((x,y):rest) ff done hm = floods rest (f:ff) (done++f) hm
+  where
+    f = flood [(x,y)] [] hm
+
+flood :: [(Int,Int)] -> [(Int,Int)] -> HeightMap -> [(Int,Int)]
+flood [] done _ = done
+flood ((x,y):todo) dones (HeightMap w h heights) = flood (todo ++ newpts) ((x,y):dones) (HeightMap w h heights)
+  where
+    height_at (x, y) = ord ((heights !! y) !! x) - (ord '0')
+    neb_pos = [(dx + x, dy + y) | (dx,dy) <- neighbours, x + dx >= 0 && x + dx < w && y + dy >= 0 && y + dy < h]
+    nbp_hh = zip neb_pos (map height_at neb_pos)
+    newpts = [pt | (pt,h) <- nbp_hh, h < 9, not (pt `elem` dones), not (pt `elem` todo)]
 
 neighbours = [ (0,-1), (-1,0), (1,0), (0,1) ]
 
