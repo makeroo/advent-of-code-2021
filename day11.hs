@@ -13,6 +13,7 @@ main = do
   let octo_heights = parse contents
 
   print octo_heights
+{-
   putStr $ (matrix octo_heights)
 
   let (t1, h1) = trig_flashes octo_heights
@@ -29,10 +30,22 @@ main = do
   let tx = iterate f octo_heights !! 5
 
   putStr $ (matrix tx)
-
+-}
   let (_, r) = iterate f2 (octo_heights, 0) !! 100
 
   print r
+
+  print (snd_star octo_heights)
+
+
+snd_star (OctoHeights w h hh) = r
+  where
+    m = dropWhile (\(_, v, _) -> v < w * h) (iterate f3 ((OctoHeights w h hh), 0, 0))
+    (_, _, r) = m !! 0
+
+f3 (m, _, s) = (n, r, s+1)
+  where
+    (n, r) = trig_flashes m
   
 f2 (m, v) = (n, v + r)
   where
