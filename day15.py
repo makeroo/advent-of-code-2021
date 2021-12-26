@@ -66,6 +66,14 @@ class Cell:
         self.min_path = p
         self.min_cost = p.cost
 
+    def add(self, f):
+        c = self.me_cost + f
+
+        if c > 9:
+            c -= 9
+
+        return Cell(c)
+
     def __str__(self):
         return f'{self.me_cost}:{self.min_cost}:{self.min_path}'
 
@@ -113,6 +121,22 @@ class Algo:
         self.paths = new_paths
 
 
+def enlarge_map(m: list[list[Cell]]) -> list[list[Cell]]:
+    r = []
+
+    for ym in range(5):
+        for row in m:
+            new_row = []
+
+            r.append(new_row)
+
+            for xm in range(5):
+                for c in row:
+                    new_row.append(c.add(xm + ym))
+
+    return r
+
+
 def parse15(p):
     z = ord('0')
 
@@ -126,4 +150,12 @@ if __name__ == '__main__':
     # logging.basicConfig(level=logging.DEBUG)
     m = parse15('day15.input')
     r = Algo(m).solve()
+    print(r)
+    mxl = enlarge_map(m)
+    # print('length: ', len(mxl), "height:", len(mxl[0]))
+    for row in mxl:
+        # for cell in row:
+        #    print(cell.me_cost, end='')
+        print()
+    r = Algo(mxl).solve()
     print(r)
