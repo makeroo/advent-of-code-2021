@@ -4,3 +4,4 @@
 *.input
 /day1
 /dist-newstyle
+__pycache__
