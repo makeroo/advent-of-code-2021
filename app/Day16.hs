@@ -9,12 +9,22 @@ data Quads = Quads Int [Int] deriving (Show)
 
 data Packet = Packet Int Int [Packet] | Constant Int Int deriving (Show)
 
-solve16 contents = r
+solve16 contents = eval packet
   where
     bits = parse16 contents
     (packet, _) = trace ("quads: " ++ show bits) parsePacket bits
     versions = packetsVersion [packet]
     r = trace ("packets: " ++ show packet) sum versions
+
+eval (Constant _ n) = n
+eval (Packet _ 0 pp) = sum $ map eval pp
+eval (Packet _ 1 pp) = product $ map eval pp
+eval (Packet _ 2 pp) = minimum $ map eval pp
+eval (Packet _ 3 pp) = maximum $ map eval pp
+eval (Packet _ 5 [p1, p2]) = if eval p1 > eval p2 then 1 else 0
+eval (Packet _ 6 [p1, p2]) = if eval p1 < eval p2 then 1 else 0
+eval (Packet _ 7 [p1, p2]) = if eval p1 == eval p2 then 1 else 0
+eval _ = error "cannot happen"
 
 packetsVersion [] = []
 packetsVersion ((Constant v _) : rest) = v : packetsVersion rest
