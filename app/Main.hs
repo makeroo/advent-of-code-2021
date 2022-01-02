@@ -7,6 +7,7 @@ import Data.List
 import Data.List.Split (splitOn)
 import qualified Data.Map as Map
 import Day15 (solve15)
+import Day16 (solve16)
 import System.Environment (getArgs)
 
 trace x y = y
@@ -31,6 +32,7 @@ main = do
 --  print $ length $ nub x
 
 solve "day15" = solve15
+solve "day16" = solve16
 solve _ = error "unknown problem"
 
 solveDay12snd contents = allPaths2 ["start"] [] [] (parseGraph contents)
